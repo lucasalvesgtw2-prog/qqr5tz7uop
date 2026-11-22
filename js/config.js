@@ -8,12 +8,12 @@
 //    Anleitung: siehe README.md → „Datenbank einrichten“.
 //    (Diese Werte sind nicht geheim – sie dürfen öffentlich sein.)
 export const firebaseConfig = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: "",
+  apiKey: "AIzaSyDF2KS8BR0xDNYJY2wSKH2hBo0MtnAv8Ho",
+  authDomain: "family-633d3.firebaseapp.com",
+  projectId: "family-633d3",
+  storageBucket: "family-633d3.firebasestorage.app",
+  messagingSenderId: "758159839811",
+  appId: "1:758159839811:web:1778bd2412f64ed705faf6",
 };
 
 // 2) Zugangscode.

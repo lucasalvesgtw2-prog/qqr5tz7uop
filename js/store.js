@@ -181,7 +181,11 @@ export function errorText(e) {
   const code = e?.code || "";
   if (code.includes("permission-denied")) return "Keine Berechtigung – sind die Datenbank-Regeln eingerichtet?";
   if (code.includes("unavailable")) return "Keine Verbindung – Änderungen werden später gespeichert.";
+  if (code.includes("configuration-not-found"))
+    return "In Firebase wurde „Authentication“ noch nicht gestartet (Build → Authentication → Jetzt starten).";
   if (code.includes("operation-not-allowed") || code.includes("admin-restricted"))
-    return "Anonyme Anmeldung ist in Firebase noch nicht aktiviert.";
+    return "Die anonyme Anmeldung ist in Firebase noch nicht aktiviert (Authentication → Sign-in method → Anonym).";
+  if (code.includes("unauthorized-domain"))
+    return "Diese Webadresse ist in Firebase noch nicht erlaubt (Authentication → Einstellungen → Autorisierte Domains).";
   return "Etwas ist schiefgelaufen. Bitte nochmal versuchen.";
 }
