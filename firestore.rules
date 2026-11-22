@@ -1,0 +1,61 @@
+rules_version = '2';
+
+// Regeln für die Familien-App.
+// In der Firebase-Konsole unter Firestore Database → Regeln einfügen und veröffentlichen.
+//
+// Wie der Schutz funktioniert:
+//  - Alle Familien-Daten liegen unter /families/{familyId}. Die familyId wird in der App
+//    aus dem Familien-Code berechnet und steht nirgends im Quelltext.
+//  - Die Liste aller Familien darf niemand abrufen, also findet man die Daten nur mit dem Code.
+//  - Private Notizen kann nur das Gerät lesen, das sie geschrieben hat.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function sharedCollection(col) {
+      return col in ['members', 'chat', 'shopping', 'chores', 'schedule', 'todos'];
+    }
+
+    // Feld fehlt, ist leer oder ein Text mit höchstens max Zeichen
+    function okText(f, max) {
+      return !(f in request.resource.data)
+        || request.resource.data[f] == null
+        || (request.resource.data[f] is string && request.resource.data[f].size() <= max);
+    }
+
+    function okList(f, max) {
+      return !(f in request.resource.data)
+        || (request.resource.data[f] is list && request.resource.data[f].size() <= max);
+    }
+
+    function validShared() {
+      return okText('title', 70)
+        && okText('desc', 500)
+        && okText('text', 1000)
+        && okText('name', 30)
+        && okText('person', 30)
+        && okText('activity', 30)
+        && okText('note', 200)
+        && okText('duration', 40)
+        && okList('comments', 300)
+        && okList('history', 50);
+    }
+
+    // Gemeinsame Daten der Familie
+    match /families/{familyId}/{col}/{docId} {
+      allow read, delete: if signedIn() && sharedCollection(col);
+      allow create, update: if signedIn() && sharedCollection(col) && validShared();
+    }
+
+    // Private Notizen: nur für das eigene Gerät (anonyme Anmeldung)
+    match /families/{familyId}/private/{uid}/notes/{noteId} {
+      allow read, delete: if signedIn() && request.auth.uid == uid;
+      allow create, update: if signedIn() && request.auth.uid == uid
+        && okText('title', 100) && okText('text', 5000);
+    }
+  }
+}
